@@ -19,9 +19,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from skinColor_detector import views
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('skincolor_detection/detect/', views.detect),
+    path('detect/', views.detect),
 ]
 

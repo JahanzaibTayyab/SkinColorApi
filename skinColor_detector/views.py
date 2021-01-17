@@ -2,7 +2,6 @@ from django.shortcuts import render
 
 # Create your views here.
 # import the necessary packages
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import numpy as np
 import urllib # python 2
@@ -13,55 +12,30 @@ import os
 from sklearn.cluster import KMeans
 from collections import Counter
 from .imutils import resize
-
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.http import Http404
+from rest_framework import status
+from rest_framework.decorators import api_view
 # define the path to the skin detector
 
-@csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 def detect(request):
     data = {"success": False,'skinColor':'','error':''}
-    url="https://1vw4gb3u6ymm1ev2sp2nlcxf-wpengine.netdna-ssl.com/wp-content/uploads/shutterstock_149962697-946x658.jpg"
-    skinColor='red'
+    print(request)
     if request.method == "POST":
+        url = request.data.get("url", None)
+        print(url)
+        if url is None:
+            data.update({"error":"No URL provided."})
+            return JsonResponse(data)
         image = _grab_image(url=url)
         image = resize(image, width=250)
         skin = extractSkin(image)
         dominantColors = extractDominantColor(skin, hasThresholding=True)
-        # url = request.POST.get("url", None)
-        # print(url)
-        # if url is None:
-        #     data.update({"skinColor": skinColor, "error":"No URL provided."})
-        #     return JsonResponse(data)
         data.update({"skinColor": dominantColors,"success": True})
     return JsonResponse(data)
-# def detect(request):
-# 	# initialize the data dictionary to be returned by the request
-# 	data = {"success": False}
-# 	# check to see if this is a post request
-# 	if request.method == "POST":
-# 		# check to see if an image was uploaded
-# 		if request.FILES.get("image", None) is not None:
-# 			# grab the uploaded image
-# 			image = _grab_image(stream=request.FILES["image"])
-# 		# otherwise, assume that a URL was passed in
-# 		else:
-# 			# grab the URL from the request
-# 			url = request.POST.get("url", None)
-# 			# if the URL is None, then return an error
-# 			if url is None:
-# 				data["error"] = "No URL provided."
-# 				return JsonResponse(data)
-# 			# load the image and convert
-# 			image = _grab_image(url=url)
-# 		# convert the image to grayscale, load the face cascade detector,
-# 		# and detect faces in the image
-#
-# 		image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-#         skin=extractSkin(image)
-# 		#update the data dictionary with the faces detected
-# 		data.update({"num_faces faces success": True})
-# 	# return a JSON response
-# 	return JsonResponse(data)
-
 def _grab_image(path=None, stream=None, url=None):
 	# if the path is not None, then load the image from disk
 	if path is not None:
