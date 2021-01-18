@@ -15,12 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.conf import settings
-from django.conf.urls.static import static
-from skinColor_detector import views
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('detect/', views.detect),
+
+#from django.contrib import admin
+from django.urls import path, include
+
+#path('admin/', admin.site.urls),
+
+urlpatterns = [    
+    path('', include('hello.urls')),
+	path('', include('skinColor_detector.urls')),
 ]
 
